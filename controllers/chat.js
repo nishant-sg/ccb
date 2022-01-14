@@ -45,28 +45,34 @@ exports.createRoom = (req, res) => {
 };
 
 exports.joinRoom = (req, res) => {
+  console.log(req.body)
   if (!req.body) {
     return res.status(400).json({
       message: "Invalid request to join chatroom",
     });
   }
-  const { roomId, userId, userName } = req.body;
+  const { roomID, userID } = req.body;
+  console.log(roomID);
   Conversation.findOne({
-    _id: roomId,
+    _id: roomID,
   }).exec((error, room) => {
-    if (error)
+    if (error){
+    console.log("therw ws an error")
       return res.status(400).json({
         error,
-      });
+      });}
     if (room) {
-      const userExists = room.participants.find((u) => u.id == userId);
+      console.log("found room");
+      const userExists = room.participants.find((u) => u.id == userID);
       if (userExists) {
+        console.log("therw adaws an error")
+
         return res.status(400).json({
           message: "User already exists in that chatroom",
         });
       } else {
         const condition = {
-          _id: roomId,
+          _id: roomID,
         };
         // const update = {
         //   $push: {
@@ -84,7 +90,7 @@ exports.joinRoom = (req, res) => {
         const update = {
           $push: {
             participants: {
-              $each: [{ id: userId }, { info: { id: userId, name: userName } }],
+              $each: [{ id: userID }, { info: { id: userID, name: "userName" } }],
             },
           },
         };
@@ -101,10 +107,11 @@ exports.joinRoom = (req, res) => {
           }
         );
       }
-    } else
+    } else{
+      console.log("no room")
       return res.status(400).json({
         message: "No room exist. Please create room first.",
-      });
+      });}
   });
 };
 
